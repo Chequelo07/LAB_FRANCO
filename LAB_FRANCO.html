@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Quiz Pro de Lógica</title>
+<style>
+    body {
+        font-family: Arial;
+        background: #1e1e2f;
+        color: white;
+        text-align: center;
+        padding: 20px;
+    }
+    .container {
+        max-width: 800px;
+        margin: auto;
+    }
+    .question {
+        font-size: 22px;
+        margin-bottom: 20px;
+    }
+    button {
+        display: block;
+        margin: 10px auto;
+        padding: 12px;
+        width: 65%;
+        background: #3a86ff;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+    }
+    button:hover {
+        background: #265ecf;
+    }
+    .correct { background: green !important; }
+    .wrong { background: red !important; }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🧠 Quiz Pro de Lógica Proposicional</h1>
+    <div id="quiz"></div>
+    <h2 id="score"></h2>
+</div>
+
+<script>
+
+// FUNCION PARA MEZCLAR
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+// TODAS LAS PREGUNTAS
+const questions = shuffle([
+
+    // OPERADORES
+    { question: "¿Resultado de ¬(V ∧ F)?", options: ["V","F"], answer: "V" },
+    { question: "Valor de V → F", options: ["V","F"], answer: "F" },
+    { question: "Valor de F → V", options: ["V","F"], answer: "V" },
+
+    // TABLAS
+    { question: "¿Cuándo es falsa (p ∧ q)?", options: ["Cuando ambas V","Cuando una es F","Cuando ambas F"], answer: "Cuando una es F" },
+    { question: "¿Cuándo es verdadera (p ∨ q)?", options: ["Ambas V","Al menos una V","Ambas F"], answer: "Al menos una V" },
+    { question: "¿Cuándo es falsa (p ↔ q)?", options: ["Iguales","Diferentes","Ambas F"], answer: "Diferentes" },
+
+    // BOOLEANA
+    { question: "p ∨ p =", options: ["p","¬p","F"], answer: "p" },
+    { question: "p ∧ F =", options: ["p","F","V"], answer: "F" },
+    { question: "p ∨ F =", options: ["p","F","V"], answer: "p" },
+
+    // INFERENCIA
+    { question: "Si p→q y p, entonces:", options: ["q","¬q","p∨q"], answer: "q" },
+    { question: "Si p→q y q es falso:", options: ["p V","p F","No se sabe"], answer: "p F" },
+    { question: "Si p→q, q→r y p:", options: ["r","¬r","No se sabe"], answer: "r" },
+    { question: "p∨q es V y p es F:", options: ["q V","q F","No se sabe"], answer: "q V" },
+
+    // NEGACIONES
+    { question: "¬(p ∨ q) =", options: ["¬p∧¬q","¬p∨¬q","p∧q"], answer: "¬p∧¬q" },
+    { question: "¬(p ∧ q) =", options: ["¬p∨¬q","¬p∧¬q","p∨q"], answer: "¬p∨¬q" },
+    { question: "¬(p → q) =", options: ["p∧¬q","¬p∧q","¬p∨¬q"], answer: "p∧¬q" },
+
+    // LEYES
+    { question: "p ∧ (p ∨ q) =", options: ["p","q","p∧q"], answer: "p" },
+    { question: "Ley de ¬(p∧q)", options: ["De Morgan","Absorción","Idempotencia"], answer: "De Morgan" },
+    { question: "p ∨ p =", options: ["Idempotencia","De Morgan","Absorción"], answer: "Idempotencia" },
+
+    // DISTRIBUTIVA
+    { question: "p ∧ (q ∨ r) =", options: ["(p∧q)∨(p∧r)","(p∨q)∧r","p∨(q∧r)"], answer: "(p∧q)∨(p∧r)" },
+    { question: "p ∨ (q ∧ r) =", options: ["(p∨q)∧(p∨r)","(p∧q)∨r","p∧(q∨r)"], answer: "(p∨q)∧(p∨r)" },
+
+    // PROPOSICIONES
+    { question: "¿Cuál es proposición?", options: ["¿Cómo estás?","Cierra la puerta","El cielo es azul"], answer: "El cielo es azul" },
+    { question: "¿Cuál NO es proposición?", options: ["2+2=4","¿Vienes?","La Tierra gira"], answer: "¿Vienes?" },
+
+    // VIDA REAL
+    { question: "Si estudio → apruebo. No apruebo:", options: ["No estudié","Estudié","No se sabe"], answer: "No estudié" },
+    { question: "Si hay humo → fuego. Hay humo:", options: ["Hay fuego","No hay fuego","No se concluye"], answer: "No se concluye" },
+    { question: "Si llueve → paraguas. No llueve:", options: ["Paraguas","No paraguas","No se concluye"], answer: "No se concluye" },
+
+    // VERDADERO/FALSO
+    { question: "¬(¬p)=p", options: ["Verdadero","Falso"], answer: "Verdadero" },
+    { question: "(p→q) ≡ (¬p∨q)", options: ["Verdadero","Falso"], answer: "Verdadero" },
+    { question: "V∧V=F", options: ["Verdadero","Falso"], answer: "Falso" },
+
+    // NIVEL ALTO
+    { question: "(p→q) ∧ p con p falso:", options: ["Siempre V","Siempre F","Depende"], answer: "Siempre F" },
+    { question: "(p∧q) si p es F:", options: ["Siempre F","Siempre V","Depende"], answer: "Siempre F" },
+    { question: "(p∨q) si p es V:", options: ["Siempre V","Siempre F","Depende"], answer: "Siempre V" },
+    { question: "¬(p↔q) =", options: ["p⊕q","p∧q","¬p∧¬q"], answer: "p⊕q" }
+
+]);
+
+let current = 0;
+let score = 0;
+
+function loadQuestion() {
+    const quiz = document.getElementById("quiz");
+    quiz.innerHTML = "";
+
+    if (current >= questions.length) {
+        document.getElementById("score").innerText =
+            "🎯 Puntaje final: " + score + " / " + questions.length;
+        return;
+    }
+
+    const q = questions[current];
+
+    const questionEl = document.createElement("div");
+    questionEl.className = "question";
+    questionEl.innerText = q.question;
+    quiz.appendChild(questionEl);
+
+    q.options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.innerText = option;
+
+        btn.onclick = () => {
+            if (option === q.answer) {
+                btn.classList.add("correct");
+                score++;
+            } else {
+                btn.classList.add("wrong");
+            }
+
+            setTimeout(() => {
+                current++;
+                loadQuestion();
+            }, 700);
+        };
+
+        quiz.appendChild(btn);
+    });
+}
+
+loadQuestion();
+
+</script>
+
+</body>
+</html>
